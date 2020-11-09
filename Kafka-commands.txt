@@ -1,0 +1,50 @@
+ ~~~~~~~~~~~~~~~~~~~~~~~~
+ KAFKA COMMAND REFERENCE
+ ~~~~~~~~~~~~~~~~~~~~~~~~
+
+ - Use all the commands from Kafka Installation Directory
+ - Default Zookeeper Port: 2181
+ - Default Kafka Broker Port: 9092
+
+ # Start Zookeeper
+ ~~~~~~~~~~~~~~~~~~~~~~~~
+ $bin/zookeeper-server-start.sh config/zookeeper.properties
+
+ # Start a Kafka Broker
+ ~~~~~~~~~~~~~~~~~~~~~~~~
+ $bin/kafka-server-start.sh config/server.properties 
+
+ # Kafka Topic Operations
+ ~~~~~~~~~~~~~~~~~~~~~~~~
+ $bin/kafka-topics.sh --list --zookeeper localhost:2181
+ $bin/kafka-topics.sh --create --zookeeper localhost:2181 --topic topic1 --partitions 1 --replication-factor 1
+ $bin/kafka-topics.sh --describe --zookeeper localhost:2181 --topic topic1
+ $bin/kafka-topics.sh --delete --zookeeper localhost:2181 --topic topic1
+
+ # Kafka Console Producer
+ ~~~~~~~~~~~~~~~~~~~~~~~~
+ $bin/kafka-console-producer.sh --topic topic1 --broker-list localhost:9092
+
+ $bin/kafka-console-producer.sh \
+  	--broker-list localhost:9092 \
+  	--topic my-topic \
+  	--property "parse.key=true" \
+  	--property "key.separator=:"
+
+key1:value1
+key2:value2
+key3:value3
+ 
+ # Kafka Console Consumer
+ ~~~~~~~~~~~~~~~~~~~~~~~~
+ $bin/kafka-console-consumer.sh --topic topic1 --bootstrap-server localhost:9092
+
+ # to read from the beginning of the topic 
+ $bin/kafka-console-consumer.sh --topic topic1 --bootstrap-server localhost:9092 --from-beginning
+
+ #create a consumer group using console comsumer
+ $bin/kafka-console-consumer.sh --topic topic1 --bootstrap-server localhost:9092 --consumer.config config/consumer.properties
+
+ $bin/kafka-console-consumer.sh --bootstrap-server kafka-1:9092 --topic topic1 --property print.key=true --property key.separator="-" --from-beginning
+
+
