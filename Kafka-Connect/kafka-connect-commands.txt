@@ -1,0 +1,69 @@
+
+
+  Kafka File Connector
+  --------------------
+
+  0. Move all .property files to <Kafka>/config folder (if they are created else where)
+
+  1. Create a topic to write the data to.
+
+  2. Creating a Source Config File - create a file called "my-file-source-1.properties" in $KAFKA_HOME/config directory
+
+  # ------------------------------------------------------------------------------------
+  # filename => my-file-source-1.properties ( template: connect-file-source.properties )
+  # ------------------------------------------------------------------------------------
+
+  name=local-file-source
+  connector.class=FileStreamSource
+  tasks.max=1
+  file=/home/cloudera/file1.txt
+  topic=t1
+
+
+  3. Creating a Worker Config File - create a file called "my-connect-standalone-1.properties" in $KAFKA_HOME/config directory 
+
+  # ------------------------------------------------------------------------------------
+  # filename => my-file-source-1.properties ( template: connect-standalone.properties )
+  # Change only the following three lines of code
+  # ------------------------------------------------------------------------------------
+
+
+   bootstrap.servers=localhost:9092
+
+   key.converter.schemas.enable=false
+   value.converter.schemas.enable=false
+
+
+  4. Running Kafka Connect
+
+
+   $KAFKA_HOME/bin/connect-standalone.sh config/my-connect-standalone-1.properties config/my-file-source-1.properties
+
+
+  5. Keep writing data to the file:  /home/cloudera/file1.txt
+
+     $ echo "some message" >> /home/cloudera/file1.txt
+     $ echo "some message 2" >> /home/cloudera/file1.txt
+
+
+  6. Open a console consumer to connect to the topic (t1 in this case) and see the messages being consumed.
+
+  7. Creating File Sink (config/my-file-sink-1.properties)
+
+	name=local-file-sink
+	connector.class=FileStreamSink
+	tasks.max=1
+	file=/home/cloudera/file-sink1.txt
+	topics=t1
+
+   8. Run File Sink Connector
+
+     $bin/connect-standalone.sh config/my-connect-standalone-1.properties config/my-file-sink-1.properties
+
+
+
+
+
+
+
+     
