@@ -1,0 +1,162 @@
+
+ Agenda
+ ------
+
+  1. Kafka - Basic & Architecture
+  2. Kafka API
+  3. Kafka Command Line Tools
+  4. Kafka Producer API
+  5. Kafka Consumer API
+  6. Kafka Streams API
+  7. Kafka Connector API (introduction)
+
+
+  Materials
+  ---------
+   1. PDF Presentations
+   2. Code Modules
+   3. Class Notes
+   Github: https://github.com/ykanakaraju/kafkajava
+
+
+   
+  Batch Processing Vs Stream Processing
+
+
+  Challenges in Streaming Analytics
+  ---------------------------------    
+    => Collecting data in real time
+    => Processing data in real time
+    => Data pipeline complexity / unmanagability
+    => Data flow volume mismatch between source and target systems.
+
+  Messaging Systems
+  ------------------
+
+    Solution: messaging systems help you to manage the challenges associated with stream processing
+
+    Two Types:
+
+	1. Point-to-point (Queues)
+		-> The messages are intended for a specific target only
+		-> Message will be deleted from the queue after processing.
+
+ 	2. Publisher-Subscriber
+		-> Messages are stored in topics
+		-> Publishers publish messages to topics
+		-> Subscribers subscribe to topics and process the data
+		-> Messages are not meant for any specific subscriber
+		-> Messages are retained for a period (like 7 days) defined by retention-period.
+
+   What is Kafka
+   --------------
+
+	=> An open-source distributed event streaming platform for:
+	    1. Publish & subscribe streams of records/messages/events
+	    2. Stores streams of records in fault-tolerant ways
+	    3. Process streams of records as they accor in real time.
+
+       
+   Why Kafka?
+   ----------
+	-> high performance (decoupled) data-pipelines
+	-> Streaming analytics
+	-> Data integrations between desperate systems
+	-> For building micro-services based application architectures
+
+
+  Kafka Architecture
+  ------------------
+
+   1. Zookeeper
+	-> Is a coordination service responsible for managing the 'state' of the cluster
+	-> All brokers send heartbeats to zookeeper. 
+	-> By default runs on port 2181
+	-> Mainly used to notify the producer and consumer of any new brokers in the cluster
+
+   2. Brokers
+	-> Are systems/servers responsible for storing published data
+	-> Each broker is stateless. So they use zookeeper to maintain state.
+	-> Each broker has a unique-id inside a kafka cluster
+	-> Each broker may have zero or more partitions per topic
+
+   3. Topic 
+	-> Is a feed/category to which records are published
+	-> Can be consumed by one or more consumers/subscribers
+	-> For every topic kafka maintains partition-logs (distributed commit logs)
+
+   4. Partitions
+	-> A topic is organized as partitions.
+	-> Each partition is an "ordered commit log"
+   
+   5. Partition Offset
+	-> Each message in a partition has a unique sequence id called "offset"
+
+   6. Replicas
+	-> Backups of a partition
+	-> They are used to prevent data loss
+	-> Only one replica acts as a "leader" replica, all reads & write will be from that "leader" replica
+	-> Replica id is same as broker-id
+
+   7. Cluster
+	-> When kafka has more than one broker coordinated by the same ZK, it is called a 'Cluster'
+
+   8. Producers
+
+   9. Consumers
+
+   10. Consumer Groups
+   
+	
+  Kafka APIs
+  ----------
+    1. Producer API => to write producer application 
+
+    2. Consumer API => to write consumer application
+
+    3. Streams API => to write stream processing applications that read from a topic and writes to another topic
+		      (Kafka -> Kafka workloads)
+
+    4. Connector API => To write application that automate data transfer between desparate systems
+
+
+  Getting started with Kafka
+  --------------------------
+
+   1. Installing Kafka
+
+	-> Download Apache Kafka binaries and extract it to a suitable location
+		URL: https://kafka.apache.org/downloads
+	-> This is a the same binaries download for all Operating systems
+
+   2. Understanding the directories
+	
+	-> bin 	  : you have all the commands (sh & bat files) to start various kafka services
+        -> config : all configuration files are located here
+	-> libs   : has all the libraries (that you can add to your java projects to start using them)
+
+   3. Start Zookeeper service
+
+	  cd <kafka-installation-directory>	  
+	  bin/zookeeper-server-start.sh config/zookeeper.properties
+
+   4. Start Kafka broker service
+
+
+
+     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
