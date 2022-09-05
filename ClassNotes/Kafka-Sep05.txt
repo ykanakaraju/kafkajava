@@ -33,36 +33,43 @@
   Messaging Systems
   ------------------
 
-    Solution: messaging systems help you to manage the challenges associated with stream processing
+   Solution: messaging systems help you to manage the challenges associated with stream processing
 
-    Two Types:
+	-> Are used to overcome the complexity and unmanagability of mulitple data pipeline.
+	-> Messaging system decouple data pipeline
 
-	1. Point-to-point (Queues)
-		-> The messages are intended for a specific target only
-		-> Message will be deleted from the queue after processing.
+	Two types:
 
- 	2. Publisher-Subscriber
-		-> Messages are stored in topics
-		-> Publishers publish messages to topics
-		-> Subscribers subscribe to topics and process the data
-		-> Messages are not meant for any specific subscriber
-		-> Messages are retained for a period (like 7 days) defined by retention-period.
+	-> Point-to-point messaging systems (Queue)
+		-> Messages produced by a source (producer application) are intended for a specific 
+		   sink (consumer application)
+		-> After the message is consumed, it will be deleted from the queue		
 
-   What is Kafka
-   --------------
+	-> Publisher-Subscriber messaging systems
+		-> Messages are produced by the publishers (producers) to "topics".
+		-> Messages in a topic are not intended for any specific consumer (subscriber).
+		-> Subscribers can subscribe to the "topics" and process the data
+		-> Messages are retained for a pre-configured period (ex: 7 days)
 
-	=> An open-source distributed event streaming platform for:
-	    1. Publish & subscribe streams of records/messages/events
-	    2. Stores streams of records in fault-tolerant ways
-	    3. Process streams of records as they accor in real time.
+    What is Kafka?
+     --------------	
+      -> Is a distributed streaming platform that is used for :
 
-       
-   Why Kafka?
-   ----------
-	-> high performance (decoupled) data-pipelines
-	-> Streaming analytics
-	-> Data integrations between desperate systems
-	-> For building micro-services based application architectures
+	1. Publish & subscribe streams of records
+	2. Store streams of records in fault-tolerant way. 
+	3. Process streams of records as they occur (real-time processing)
+	
+     Why Kafka ?
+     -----------
+	-> Building real-time data pipelines (decoupled)
+	-> Building real-time streaming application
+
+     Benefits of Kafka
+     -----------------
+	-> Reliability (distributed, partitioned, replicated)
+	-> Scalability
+	-> Durability (distributed commit-log, intra-cluster replicated)
+	-> High performance
 
 
   Kafka Architecture
@@ -93,17 +100,24 @@
 	-> Each message in a partition has a unique sequence id called "offset"
 
    6. Replicas
-	-> Backups of a partition
-	-> They are used to prevent data loss
-	-> Only one replica acts as a "leader" replica, all reads & write will be from that "leader" replica
-	-> Replica id is same as broker-id
+	-> Backups of a partition.
+	-> The "id" of the replica is same as the broker-id
+	-> They are used to prevent data-loss
+	-> Only one replica acts as a 'leader'
+		-> All reads and writes are served only by these 'leader' replicas.
+		-> If the broker containing 'leader' goes down, an election process is triggered
+		   and one the in-sync replicas (ISR) will be elected as the 'leader' 
 
    7. Cluster
 	-> When kafka has more than one broker coordinated by the same ZK, it is called a 'Cluster'
 
-   8. Producers
+   8. Producer
+	   -> Is an application that produce messages to topic (leader) partitions.
+           -> A producer can produce messages to one or more topics
 
-   9. Consumers
+   9. Consumer	
+	   -> Is an application that subscribes to one or more topics (or topic partitions) and
+	      poll messages from the leader replicas of the partitions.
 
    10. Consumer Groups
    
