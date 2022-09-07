@@ -1,0 +1,365 @@
+
+ Agenda
+ ------
+
+  1. Kafka - Basic & Architecture
+  2. Kafka API
+  3. Kafka Command Line Tools
+  4. Kafka Producer API
+  5. Kafka Consumer API
+  6. Kafka Streams API
+  7. Kafka Connector API (introduction)
+
+
+  Materials
+  ---------
+   1. PDF Presentations
+   2. Code Modules
+   3. Class Notes
+   Github: https://github.com/ykanakaraju/kafkajava
+
+
+   
+  Batch Processing Vs Stream Processing
+
+
+  Challenges in Streaming Analytics
+  ---------------------------------    
+    => Collecting data in real time
+    => Processing data in real time
+    => Data pipeline complexity / unmanagability
+    => Data flow volume mismatch between source and target systems.
+
+
+  Messaging Systems
+  ------------------
+
+   Solution: messaging systems help you to manage the challenges associated with stream processing
+
+	-> Are used to overcome the complexity and unmanagability of mulitple data pipeline.
+	-> Messaging system decouple data pipeline
+
+	Two types:
+
+	-> Point-to-point messaging systems (Queue)
+		-> Messages produced by a source (producer application) are intended for a specific 
+		   sink (consumer application)
+		-> After the message is consumed, it will be deleted from the queue		
+
+	-> Publisher-Subscriber messaging systems
+		-> Messages are produced by the publishers (producers) to "topics".
+		-> Messages in a topic are not intended for any specific consumer (subscriber).
+		-> Subscribers can subscribe to the "topics" and process the data
+		-> Messages are retained for a pre-configured period (ex: 7 days)
+
+    What is Kafka?
+     --------------	
+      -> Is a distributed streaming platform that is used for :
+
+	1. Publish & subscribe streams of records
+	2. Store streams of records in fault-tolerant way. 
+	3. Process streams of records as they occur (real-time processing)
+	
+   Why Kafka ?
+   -----------
+	-> Building real-time data pipelines (decoupled)
+	-> Building real-time streaming application
+
+  Benefits of Kafka
+  -----------------
+	-> Reliability (distributed, partitioned, replicated)
+	-> Scalability
+	-> Durability (distributed commit-log, intra-cluster replicated)
+	-> High performance
+
+
+  Kafka Architecture
+  ------------------
+
+   1. Zookeeper
+	-> Is a coordination service responsible for managing the 'state' of the cluster
+	-> All brokers send heartbeats to zookeeper. 
+	-> By default runs on port 2181
+	-> Mainly used to notify the producer and consumer of any new brokers in the cluster
+
+   2. Brokers
+	-> Are systems/servers responsible for storing published data
+	-> Each broker is stateless. So they use zookeeper to maintain state.
+	-> Each broker has a unique-id inside a kafka cluster
+	-> Each broker may have zero or more partitions per topic
+
+   3. Topic 
+	-> Is a feed/category to which records are published
+	-> Can be consumed by one or more consumers/subscribers
+	-> For every topic kafka maintains partition-logs (distributed commit logs)
+
+   4. Partitions
+	-> A topic is organized as partitions.
+	-> Each partition is an "ordered commit log"
+   
+   5. Partition Offset
+	-> Each message in a partition has a unique sequence id called "offset"
+
+   6. Replicas
+	-> Backups of a partition.
+	-> The "id" of the replica is same as the broker-id
+	-> They are used to prevent data-loss
+	-> Only one replica acts as a 'leader'
+		-> All reads and writes are served only by these 'leader' replicas.
+		-> If the broker containing 'leader' goes down, an election process is triggered
+		   and one the in-sync replicas (ISR) will be elected as the 'leader' 
+
+   7. Cluster
+	-> When kafka has more than one broker coordinated by the same ZK, it is called a 'Cluster'
+
+   8. Producer
+	   -> Is an application that produce messages to topic (leader) partitions.
+           -> A producer can produce messages to one or more topics
+
+   9. Consumer	
+	   -> Is an application that subscribes to one or more topics (or topic partitions) and
+	      poll messages from the leader replicas of the partitions.
+
+   10. Consumer Groups
+   
+	
+  Kafka APIs
+  ----------
+    1. Producer API => to write producer application 
+
+    2. Consumer API => to write consumer application
+
+    3. Streams API => to write stream processing applications that read from a topic and writes to another topic
+		      (Kafka -> Kafka workloads)
+
+    4. Connector API => To write application that automate data transfer between desparate systems
+
+
+  Getting started with Kafka
+  --------------------------
+
+   1. Installing Kafka
+
+	-> Download Apache Kafka binaries and extract it to a suitable location
+		URL: https://kafka.apache.org/downloads
+	-> This is a the same binaries download for all Operating systems
+
+   2. Understanding the directories
+	
+	-> bin 	  : you have all the commands (sh & bat files) to start various kafka services
+        -> config : all configuration files are located here
+	-> libs   : has all the libraries (that you can add to your java projects to start using them)
+
+   3. Start Zookeeper service
+
+	  cd <kafka-installation-directory>	  
+	  bin/zookeeper-server-start.sh config/zookeeper.properties
+
+   4. Start Kafka broker service
+
+	 bin/kafka-server-start.sh config/server.properties
+
+   5. Topic Operations
+
+	 bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+	 bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic t1
+	 bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic t1 --partitions 4 --replication-factor 1
+	 bin/kafka-topics.sh --bootstrap-server localhost:9092 --delete --topic t1
+
+   6. Launch a Kafka Console Producer to write messages to Kafka
+	
+	bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic t1
+	bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic t1 --property "parse.key=true" --property "key.separator=:"
+
+   7. Launch a Kafka Console Consumer to read messages from Kafka
+
+	bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic t1
+	bin/kafka-console-consumer.sh --bootstrap-server localhost:9092   --topic t1 --property print.key=true --property print.value=true --property key.separator=" | "
+
+	Consumer Group
+	--------------
+	bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic ctstopic --property print.key=true --property print.value=true --property key.separator=" | " --group ctstopic-group-1
+
+   8. Consumer Groups
+
+	bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --list
+	bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group ctstopic-group-1
+	
+	
+   Important Configurations
+   ------------------------
+	broker.id=0
+	listeners=PLAINTEXT://:9092
+	log.dirs=/tmp/kafka-logs
+	zookeeper.connect=localhost:2181
+	log.retention.hours=168
+
+
+   Important Ports (defaults)
+   --------------------------
+   1. Zookeeper : 2181
+   2. Brokers   : 9092
+
+
+   Setting up Single-node Multi-broker Cluster
+   -------------------------------------------
+	
+		
+  				broker-id	port	log-dir
+   	-------------------------------------------------------------------
+  	server.properties	0		9092	/tmp/kafka-logs
+  	server1.properties	1		9093	/tmp/kafka-logs-1
+  	server2.properties	2		9094	/tmp/kafka-logs-2
+   
+
+  Setting up a Virtual Machine
+  ----------------------------
+
+   1. Install Oracle VM VirtualBox
+	
+	URL: https://www.virtualbox.org/wiki/Downloads
+	Click on "Windows hosts" link to download.
+
+        => Follow the instruction from this link: 
+
+         https://brb.nci.nih.gov/seqtools/installUbuntu.html
+  
+
+  Kafka Message Distribution Logic
+  --------------------------------
+
+   -> A message (record) can have a partition specified in it. If a message explicitly
+      specifies the partition, then those messages will go to the specified partition only.
+
+   -> If partition is notspecified, then the message "key" decides to which partition, the message
+      goes to. Messages with the same key goes to the same partition as long as the number of partitions
+      of the topic remains the same.
+
+      -> A partitioner is applied to the key to decide the partition. We can provide a 
+         custom-partitioner to decide the logic to be applied to decide the partition. 
+
+      -> If a custom partitioner is not specified, the default hash partitioner is used.    
+      
+      Let us say your topic has 3 partitions: P-0, P-1, P-2
+
+      ("USA", ".......")         => Hash Code of "USA"     - 84323 % 3 = 2
+      ("UK", ".......")		 => Hash Code of "UK"      - 2710 % 3 = 1	
+      ("India", ".......")	 => Hash Code of "India"   - 70793495 % 3 = 2
+      ("Germany", ".......")	 => Hash Code of "Germany" - 1588421523 % 3 = 0	
+      ("France", ".......")	 => Hash Code of "France"  - 2112320571 % 3 = 0
+
+   -> If the message has no key, no partitioner and no partition specifies, then the messages will be
+      randomly distributed across partitions in a round-robin manner.
+
+
+  Kafka Producers
+  ===============
+
+
+
+  Writing a simple Producer Application
+  -------------------------------------
+
+  1. Create a Properties object with the required configurations set.
+
+	Required Configurations:
+	   -> bootstrap.servers   : to connect to kafka cluster
+	   -> key.serializer
+
+		Properties kafkaProps = new Properties();
+	      	kafkaProps.put("bootstrap.servers", "localhost:9092,localhost:9093,localhost:9094");
+	      	kafkaProps.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");         
+	      	kafkaProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+  2. Instantiate a "KafkaProducer" object passing the 'properties' object as a parameter.
+
+	Producer<String, String> producer = new KafkaProducer <String, String>(kafkaProps);
+
+  3. Create ProducerRecord objects (as many as you like) and send them to Kafka by invoking
+     "producer.send" method.
+
+	ProducerRecord represents a message.
+
+	try { 
+	   for (int i = 1; i <= 30; i++) {	
+		key = "Key " + i;
+		value = "Test Java Message " + i;
+				  
+		ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key, value); 
+		producer.send(record);
+				  				  
+		System.out.println("sent message - " + i);			  
+	   }
+	}
+
+  
+
+  Ways to send Messages
+  ---------------------
+
+   1. Fire and Forget Delivery
+	-> Sends the message and completly ignores the return value
+
+        Advantanges:
+		-> Very fast
+		-> Suitable for applications such as ClickStream analysis
+	Disadvantages:
+		-> No message delivery guarantees.
+		-> Order of commiting messages to Kafka is not guarenteed
+
+	Code:
+
+	ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key, value); 				  
+	producer.send(record);
+
+
+  2. Synchronous Delivery
+	-> Send the messages, blocks the call and waits until the response (RecordMetaData) is returned.
+	
+	Advantanges:
+		-> Message delivery guarantee is high
+		-> No message loss
+		-> Messages are produced in order
+		-> Suitable for critical applications such as financial transactions etc.
+
+	Disadvantages:
+		-> very slow, as there the producer waits for the response for every message.
+
+	Code:
+		RecordMetadata metaData = producer.send(record).get();
+				  
+		String strMetaData = "partition: " + metaData.partition() +
+				     "; topic: " + metaData.topic() + 
+				     "; offset: " + metaData.offset() +
+				     "; hashCode: " + metaData.hashCode() + 
+				     "; timestamp: " + metaData.timestamp();
+
+
+
+   3. Asynchronous Delivery
+
+       => The producer sends each message along with a call-back method that receives the 
+	  acknowledgement in future and processes those acknowledgements in separate thread.
+
+       => The main thread will not block the call and can produce messages without waiting. 
+
+       => The message delivery order may not be guaranteed. 
+
+       => Use Case: Where you need moderate message delivery guarantee (you dont care about the order)
+          and need high throughput.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
