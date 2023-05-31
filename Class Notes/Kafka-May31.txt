@@ -1,0 +1,215 @@
+
+ Agenda
+ ------
+  1. Kafka - Basics & Architecture
+  2. Kafka APIs
+  3. Kafka Command Line Tools
+  4. Kafka Producer API
+  5. Kafka Consumer API
+  6. Kafka Streams API
+  7. Kafka Connector API (introduction)
+
+
+  Materials
+  ---------
+   1. PDF Presentations
+   2. Code Modules
+   3. Class Notes
+   Github: https://github.com/ykanakaraju/kafkajava
+
+
+  
+
+  Event Streaming
+  ----------------
+
+    -> Is technological foundation for processing data in real-time where businesses are more data driven
+
+    -> Event streaming is the practice of capturing data in real-time from event sources such as GPS, IoT, 
+       Log-streames etc.
+
+  Event Streaming Use-cases
+  -------------------------
+     -> Finance: Stock exchanges, banks, insurance
+     -> Logistics : Tracking cars, trucks
+     -> IoT : Captures and process sensor data. 
+
+  Challenges in Streaming Analytics
+  ---------------------------------    
+    => Collecting data in real time
+    => Processing data in real time
+    => Data pipeline complexity / unmanagability
+    => Data flow volume mismatch between source and target systems.
+
+     -> Messaging Systems are used to decouple data pipelines
+
+     -> Two types of messaging systems
+
+	-> Point-to-point messaging systems (Queue)
+		-> Messages produced by a source (producer application) are intended for a specific 
+		   sink (consumer application)
+		-> After the message is consumed, it will be deleted from the queue		
+
+	-> Publisher-Subscriber messaging systems
+		-> Messages are produced by the publishers (producers) to "topics".
+		-> Messages in a topic are not intended for any specific consumer (subscriber).
+		-> Subscribers can subscribe to the "topics" and process the data
+		-> Messages are retained for a pre-configured period (ex: 7 days)
+     
+
+  What is Kafka
+  -------------
+    -> Kafka is distributed streaming platform that is used for:
+	  -> Publish and Subscribe streams of records (by external applications)
+	  -> Store streams of records in fault-tolerant ways
+	  -> Process streams of data as they occurs. 
+
+
+  Basics components of Kafka
+  --------------------------
+
+   1. Zookeeper
+	-> Is a coordination service responsible for managing the 'state' of the cluster
+	-> All brokers send heartbeats to zookeeper. 
+	-> By default runs on port 2181
+	-> Mainly used to notify the producer and consumer of any new brokers in the cluster
+
+   2. Brokers
+	-> Are systems/servers responsible for storing published data
+	-> Each broker is stateless. So they use zookeeper to maintain state.
+	-> Each broker has a unique-id inside a kafka cluster
+	-> Each broker may have zero or more partitions per topic
+
+   3. Topic 
+	-> Is a feed/category to which records are published
+	-> Can be consumed by one or more consumers/subscribers
+	-> For every topic, kafka maintains partition-logs (distributed commit logs)
+
+   4. Partitions
+	-> A topic is organized as partitions.
+	-> Each partition is an "ordered commit log"
+   
+   5. Partition Offset
+	-> Each message in a partition has a unique sequence id called "offset"
+
+   6. Replicas
+	-> Backups of a partition.
+	-> The "id" of the replica is same as the broker-id
+	-> They are used to prevent data-loss
+	-> Only one replica acts as a 'leader'
+		-> All reads and writes are served only by these 'leader' replicas.
+		-> If the broker containing 'leader' goes down, an election process is triggered
+		   and one the in-sync replicas (ISR) will be elected as the 'leader' 
+
+   7. Cluster
+	-> When kafka has more than one broker coordinated by the same ZK, it is called a 'Cluster'
+
+   8. Producer
+	   -> Is an application that produce messages to topic (leader) partitions.
+           -> A producer can produce messages to one or more topics
+
+   9. Consumer	
+	   -> Is an application that subscribes to one or more topics (or topic partitions) and
+	      poll messages from the leader replicas of the partitions.
+
+
+
+   Getting started with Kafka
+   --------------------------
+
+   1. Installing Kafka
+	-> Make sure that you have Java 8 installed (JDK 1.8.x)
+		java -version  (returns the java version)
+	-> Download Apache Kafka binaries and extract it to a suitable location
+		URL: https://kafka.apache.org/downloads
+	-> This is a the same binaries download for all Operating systems
+
+   2. Understanding the directories
+	
+	-> bin 	  : you have all the commands (sh & bat files) to start various kafka services
+        -> config : all configuration files are located here
+	-> libs   : has all the libraries (that you can add to your java projects to start using them)
+
+   3. Start Zookeeper service
+
+	  cd <kafka-installation-directory>	  
+	  bin/zookeeper-server-start.sh config/zookeeper.properties
+
+   4. Start Kafka broker service
+
+	cd <kafka-installation-directory>	  
+	  bin/kafka-server-start.sh config/server.properties
+
+   5. Topic Operations
+
+		bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+		bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic t1
+		bin/kafka-topics.sh --bootstrap-server localhost:9092 --delete --topic t1
+		bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic topic1 --partitions 3 --replication-factor 1
+
+   6. Console Producer
+		bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic topic1
+		bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic topic1 --property "parse.key=true" --property "key.separator=:"
+
+   7. Console Consumer
+		bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic topic1
+		bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic topic3 --property print.key=true --property print.value=true --property key.separator=" | "
+		bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic topic3 --property print.key=true --property print.value=true --property key.separator=" | " --from-beginning
+
+		bin/kafka-console-consumer.sh --topic topic1 --bootstrap-server localhost:9092 --group g1
+		bin/kafka-console-consumer.sh --topic topic1 --bootstrap-server localhost:9092 --consumer.config config/consumer.properties
+
+   8. Consumer Groups
+		bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --list
+
+
+  Single Node, Multi Broker Kafka Cluster
+  --------------------------------------
+
+   Create three copies of the server.properties file:
+
+			  	broker.id	port	log.dirs		zookeeper.connect	
+	server.properties	0		9092	/tmp/kafka-logs		localhost:2181
+	server1.properties	1		9093	/tmp/kafka-logs-1	localhost:2181	
+	server2.properties 	2 		9094 	/tmp/kafka-logs-2	localhost:2181
+
+
+
+
+
+   Message Distribution Logic
+   --------------------------
+     	1. If the Record contains a partition-id, then the message will be sent to that partition
+	2. If the Record has no partition-id specified:
+		2.1 If they message has 'key', then check if there is any custom-partitioner specified:
+			if yes, the output of the partitioner will decide the partition
+			if no, then the default partitoner id used to decide the partition
+		2.2 If they message has no 'key', then the messages are distributed among the paritions in
+		    a load-balanced manner.
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
