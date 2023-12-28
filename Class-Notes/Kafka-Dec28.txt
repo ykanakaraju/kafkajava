@@ -1,0 +1,699 @@
+
+  Kafka  (6 sessions)
+  -----------------------------------
+    Kafka Basic Understanding
+    Kafka Architecture
+    Kafka APIs - 4 APIs
+    Kafka Producer API
+    Kafka Consumer API
+    Kafka Streams API
+    Kafka Connect API - Introduction
+
+
+  Materials
+  ---------
+	-> PDF Presentations
+	-> Code examples
+	-> Class notes
+	-> Github: https://github.com/ykanakaraju/kafkajava
+
+
+  Apache Kafka
+  ------------
+	
+    Batch Analytics
+    ---------------
+        Batch Data              : Bounded,  1 GB
+        Batch Data Processing   : Bounded,  Starts at 2:00 PM and ends at 2:30 PM
+
+
+    Streaming Analytics
+    -------------------        
+         Streaming Data         : Unbounded, How much data per unit of time (1 MB per sec)
+         Stream Data Processing : Real time analytics
+   
+
+    Challenges in real-time data analytics:
+    ---------------------------------------  
+        -> Collect the data efficiently
+        -> Analysis of the data in real time
+
+     
+    Messaging Systems
+    -----------------
+        -> Decouple the data pipelines and provide solution to handle data collection
+           and processing of streaming data in a more scalable way.
+
+
+    Two types of messaging systems:
+    ------------------------------
+   
+          1. Point to Point Messaging System
+
+                [ Source ] ====> [ Messaging Engine ]
+                 1000 m.p.s      [ x x x x x x x ...]  ==>  [ Consumer App ] ==> [Database]
+                                                            500 m.p.s
+
+          2. Publisher and Subscriber Messaging System
+
+
+    Kafka  (Written in Scala and Java language)
+    --------------------------------------------
+
+       1. Is a distributed pub/sub messaging system.
+
+       2. Is an intermediate storage platform where you can keep the messages for as long as want
+          in a distributed, fault-tolerant manner.
+
+       3. Is a streaming event-processing platform that provides APIs to write stream processing
+          applications (such as micro-services)
+ 
+
+   Kafka APIs
+   ----------
+
+       1. Producer API	   
+            -> Allows you to write applications (Java/Scala/C#) that listens to the streaming
+               data and stores the messages in the Kafka topics.
+
+       2. Consumer API
+            -> Allows you to write applications that can subscribe to one or more topics in Kafka
+               and process the messages
+
+       3. Streams API
+	    -> Allows you to write the applications that can read from an existing topic in Kafka,
+               transforms the data in some form and write to another topic.
+		
+       4. Connector API
+            -> Connectors move data from standard sources to standared destination using a pre-defined
+               configurations.
+
+            -> There are lot of existing connectors that are already provided by various organizations.
+
+            -> We can also define our own by using Connector API.  
+
+
+   What is a cluster ?
+   -------------------
+      A group of nodes/computers that acts as a unified entity whose cumulative resources can
+      used to store and process our data in a distributed way. 
+   
+
+
+   Kafka Building Blocks
+   ---------------------
+
+    1. Broker: 
+	=> A kafka service (kafka-server-start) running in a machine in a node of the cluster.
+	=> Every broker has a unique broker-id in the cluster	       
+
+    2. Topic : 
+	=> Is a feed-name to which similar or same type of messages are published.
+
+    3. Partitions : 
+	=> A sinlge topic is organized as multiple partitions
+        => Each partition is a sequential commit-log, where messages are stored sequentially
+        => To identify a message uniquely we need:
+		-> topic, partition-id, off-set
+
+   4. Producer :
+	=> Is an application that writes/produces messages (events/records) to a topic.
+    
+   5. Consumer :
+         => Is an application that subscribes to one or more topics and polls the messages and 
+            processes them.
+         => Each processed message is committed to a topic called "__consumer_offsets" topic	 
+          
+   6. Zookeeper :
+	=> ZK provides a coordination service which monitors activitoes in the cluster
+        => A cluster is basic is basicaaly formed with a set a brokers connected to the same ZK service.
+   
+   7. Replication
+        => Replication is provided to handle fail-safety
+        => Each partition can have multiple-replicas
+        => Replicas are always created on different brokers (cant have multiple replicas of a partition
+           on the same broker)
+        => Only one of the replicas is elected as the "leader" replica
+        => All prodiction and consumption of message happen only from these 'leader' replicas.
+
+   8. Batch
+	=> Messages from a producer are 'typically' produced in batches
+        => Each batch has a set of messages that are to be written to a specific partition
+
+         Topic A  => P: 0, P: 1, P: 2
+
+         Producer ==> Batch 1 [ m1, m2, m3, m4, ... ] for P0   ===> sent to partition 0
+		  ==> Batch 2 [ m1, m2, m3, m4, ... ] for P1   ===> sent to partition 1
+		  ==> Batch 3 [ m1, m2, m3, m4, ... ] for P2   ===> sent to partition 2
+
+
+
+   Getting started with Apache Kafka
+   ---------------------------------
+
+    1. Make sure Java 8 is installed 
+   
+    2. Download an appropriate version of Kafka from https://kafka.apache.org/downloads
+       (Preferrably  a version which is a few months old)    
+
+    3. Extract the tgz file at suitable location.
+
+    4. Kafka folder structure:
+            <kafka>/bin         => all the linux/mac shell scripts are found here.
+            <kafka>/bin/windows => all windows batch files are found here..
+            <kafka>/config      => all configuration properties file are located here
+            <kafka>/libs        => all libraries (jars) are found here
+
+   NOTE: <kafka> refers to Kafka installation directory (whereever you unzipped the tgz file)
+    
+   5. Start Zookeeper service:
+
+         Linux:
+             <kafka>/bin/zookeeper-server-start.sh config/zookeeper.properties
+     
+         Windows:
+             <kafka>/bin/windows/zookeeper-server-start.bat config/zookeeper.properties
+
+
+   6. Start the Kafka broker
+
+         Linux:
+              <kafka>/bin/kafka-server-start.sh config/server.properties
+
+	 Windows:
+              <kafka>/bin/windows/kafka-server-start.bat config/server.properties
+
+
+   To check if a service is already running:
+   ----------------------------------------
+   $ netstat -nlp | grep 2181     => to check of ZK is already running
+
+
+   Important PORT numbers
+   ----------------------
+
+     Zookeeper: 2181
+     Kafka Broker: 9092
+
+
+  Important Kafka Configuration Settings
+  --------------------------------------
+
+      Properties file:  server.properties
+
+      broker.id = 0                 // has to unique in the cluster. change it in the properties file as needed.
+      listeners=PLAINTEXT://:9092   // port number where kafaka service is started
+      log.dirs=/tmp/kafka-logs      // where Kafka saves all the data of the topics
+      zookeeper.connect=localhost:2181
+      log.retention.hours=168
+
+      10 machines ==>  <kafka>/bin/kafka-server-start.sh config/server.properties
+
+
+  Working with Topics
+  -------------------
+
+    List Topics:  
+    ------------ 
+   	bin\windows\kafka-topics.bat --list --bootstrap-server localhost:9092
+	bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+
+
+    Create a Topic:
+    --------------
+	bin\windows\kafka-topics.bat --create 
+				--bootstrap-server localhost:9092
+				--topic t1 
+				--partitions 2 
+				--replication-factor 1
+
+	bin/kafka-topics.sh --create 
+			--bootstrap-server localhost:9092 
+			--topic ctstopic1 
+			--partitions 3 
+			--replication-factor 1
+
+    Delete a topic
+    --------------
+        bin\windows\kafka-topics.bat --delete
+				--bootstrap-server localhost:9092
+				--topic t1
+
+    Describe the Topic:
+    ------------------
+	bin\windows\kafka-topics.bat --describe 
+				--bootstrap-server localhost:9092
+				--topic t1
+   
+    Console Producer
+    ----------------
+     => Starting a console producer:
+
+	bin\windows\kafka-console-producer.bat --topic t1 --broker-list localhost:9092 
+
+	bin/kafka-console-producer.sh --topic t1 --broker-list localhost:9092 
+
+
+   Console Consumer
+   ----------------
+     => Starting a stand-alone console consumer:
+
+  	bin/kafka-console-consumer.sh --topic t1 --bootstrap-server localhost:9092
+
+
+     => Starting a console consumer in consumer group:
+   
+        bin/kafka-console-consumer.sh --topic t1 
+				--bootstrap-server localhost:9092 
+				--consumer.config config/consumer.properties
+
+        bin/kafka-console-consumer.sh --topic t1 
+				--bootstrap-server localhost:9092 
+				--group my-group   
+
+
+   Message distribution logic
+   --------------------------
+
+   -> A message (record) can have a partition specified in it. If a message explicitly
+      specifies the partition, then those messages will go to the specified partition only.
+
+   -> If the partition is not specified in the message, Kafka checks if there is any partitioner
+      attached to the client. If so, the partitioner will decide to which partition the message 
+      goes to.
+
+   -> If no partitioner is specified, then the message "key" decides to which partition, the message
+      goes to. Messages with the same key goes to the same partition as long as the number of partitions
+      of the topic remains the same.
+      
+      Let us say your topic has 3 partitions: P-0, P-1, P-2
+
+      ("USA", ".......")         => Hash Code of "USA"     - 84323 % 3 = 2
+      ("UK", ".......")		 => Hash Code of "UK"      - 2710 % 3 = 1	
+      ("India", ".......")	 => Hash Code of "India"   - 70793495 % 3 = 2
+      ("Germany", ".......")	 => Hash Code of "Germany" - 1588421523 % 3 = 0	
+      ("France", ".......")	 => Hash Code of "France"  - 2112320571 % 3 = 0
+
+   -> If the message has no key, no partitioner and no partition specifies, then the messages will be
+      randomly distributed across partitions in a round-robin manner.
+
+
+
+  Producer API
+  ============
+
+   => Is used to write producer applications using Java and Scala. 
+    
+   
+  Process of creating a Producer Application
+  ------------------------------------------
+
+    1. Create the Properties object that defines all the properties with which the 
+      producer application runs
+
+      => Some Properties
+    
+         -> Bootstrap-server: Is any broker that is used to establish a connection to the cluster.
+            Typically we specify three or four brokers so that even if a few of those are down
+            while establishing the connection, it can use other to connect to the cluster.
+
+         -> Key-Serializer : The class to be used for serializing the key
+
+         -> Value-Serializer : The class to be used for serializing the value
+    
+    
+         Serializer: Is a class that converts an object into a byte-stream
+         Deserializer: Is a class that reads the serialized data and converts that into object form.
+   
+         Note: Kafka stores messages in the "serialized format"
+
+
+    2. Create a KafkaProducer object by passing the properties object as a parameter
+
+    3. A ProducerRecord object represents a "message/record"
+
+         4 definitions:
+
+         -> ProducerRecord(String topic, V value)
+	 -> ProducerRecord(String topic, K key, V value)
+	 -> ProducerRecord(String topic, Integer partition, K key, V value)
+	 -> ProducerRecord(String topic, Integer partition, Long timestamp, K key, V value)          
+  
+
+    4. Send the record to the Kafka using KafkaProducer 
+
+           -> producer.send( <record> )      				// FF
+           -> RecordMetaData meta = producer.send( <record> ).get()     // Synchrounous
+           -> producer.send( <record>, <callback> )			// Asynchronous
+  
+     
+   Producer Message Delivery Strategies
+  ------------------------------------
+
+   1. Fire and Forget
+
+	=> Producer sends message to Kafka, but does not care about what happens to that message.
+           -> Producer does not receive the acknowdgement at all.
+        => This will give maximum throughput
+        => No message delivery guarantee. 
+
+        => Use Cases: ClickStream Analysis
+
+
+   2. Synchronous Delivery
+
+       => The producer sends each message and waits for the acknowledgement. 
+
+       => The acknowledgment ( RecordMetaData / Exception ) take some time and producer blocks the call
+          until it receives the acknowledgement from the broker.
+
+       => Very high message delivery guarantee.
+       => The delivery throughput is low.  
+
+       => Use Cases: Finanacial Transactions, Health-Care.
+
+
+   3. Asynchronous Delivery
+
+       => The producer sends each message along with a call-back method that receives the acknowledgement
+          in future and processes those acknowledgements in separate thread.
+
+       => The main thread will not block the call and can produce messages without waiting. 
+
+       => The message delivery order may not be guaranteed. 
+
+       => Use Case: Where you need moderate message delivery guarantee (you dont care about the order)
+          and need high throughput.
+
+
+  Some Producer Configurations
+  ----------------------------
+
+  Mandatory
+  ----------
+	
+  1. bootstrap-servers
+
+  2. key.serializer
+
+  3. value.serializer
+
+  
+  Optional
+  --------
+
+  1. batch.size  (default: 16384  (16 KB) )
+
+	Batch => Producer will attempt to batch records into fewer requests whenever multiple 
+                records are being sent to the same partition. 
+
+       -> default batch-size in bytes 
+       -> kafkaProps.put("batch.size", 20480); 
+
+
+  2. buffer.memory  (default: 33554432 bytes (32 MB))
+       
+       -> Total memory used to buffer records waiting to be sent to the server.
+       -> If the records are "sent" faster than they can be "delivered", the producer will block
+          for some time defined by "max.block.ms".  
+       -> If the buffer is still full after that time, it will throw an exception.
+
+   
+  3. max.block.ms (default: 60,000 milliseconds)
+       -> max time the "producer.send()" method is blocked.
+
+
+  4. acks   
+
+       -> The number of acknowledgements that the producers requires the leader to have received to
+          report the request as successfully written (and return a RecordMetaData object)
+
+          Three values:
+          	acks = 0 => No acks sent at all  
+		acks = 1 (default) => Only leader acks the message
+                acks = -1 ( acks = all ) => All "In-Sync" replicas acks the message
+
+  5. retries   (retries = 3)
+
+       -> causes the client to resend any record whose send fails with a potentilly recoverable error.
+       -> delivery.timeout.ms (120,000) controls the max time allocated for retries. 
+
+
+  6. delivery.timeout.ms (default: 120000)
+
+	-> An upperbound on the time to report success or failure after the call to send succeeds.
+
+
+  7. linger.ms 
+
+       -> is the amount of time the client waits for the records to accumulate in the
+          batch before being sent out if "batch.size" has not reached yet.
+
+       -> linger.ms = 5000 
+            -> reduces the number of requests sent out
+            -> adds 5 sec latency in the absense message load. 
+
+
+  8. compression.type  (none, gzip, snappy, lz4, ..)
+
+       -> Which compression codec you want to use.
+       -> "snappy" is most commonly used.
+
+
+
+
+  Consumer API
+  ============
+
+   => A consumer is a client application that connects to kafka cluster, subscribes to one
+      ( or more ) topic(s) or to a few partitions of a topic. 
+    
+       -> A consumer may subscribe to a single topic
+          (it consumes the data of all partitions of that topics)
+
+
+       -> A consumer may subscribe to multiple topics
+          (it consumes data from all partitions of all the subscribed topics possibly to create enriched streams)
+
+       -> A consumer can subscribe to one or more partitions of a topic
+          (usually to process only specific key's data)
+
+
+   => Kafka consumers have a "poll" model, while other enterprize message-buses have "pull" model.
+      
+      -> This allows consumers to control from where in the commit-log (partition) they want to
+         consume - from the earliest message, from latest message or from a specific off-set.
+   
+      
+  => Problems with a "standalone" consumer
+
+      -> If the consumption throughput is slower than production throughput (which is the common case)
+         then there could be two problems:
+    
+         -> messages may not processed at all due to lag. (because of retention-period)
+         -> message processing can be time-sensitive. Too much lag could be detrimental to the business.
+         -> Consumer-groups can solve this problem.
+
+
+   bin/kafka-topics.sh --describe 
+		--bootstrap-server localhost:9092 
+		--topic ctstopic3p3r 
+		--consumer.config config/consumer.properties
+
+   bin/kafka-topics.sh --describe 
+		--bootstrap-server localhost:9092 
+		--topic ctstopic3p3r 
+		--consumer-property group.id=mygroup 
+
+   bin/kafka-topics.sh --describe 
+		--bootstrap-server localhost:9092 
+		--topic ctstopic3p3r 
+		--group mygroup    
+
+
+
+   Consumer Group Commands
+   -----------------------
+
+    => bin/kafka-consumer-groups.sh --list --bootstrap-server localhost:9092
+    
+   
+    How Consumer Group Works
+    ------------------------
+
+    => Whenever you launch the first consumer in a consumer-group, one of the brokers in the
+       cluster is designated as the "Group Coordinator". 
+
+    => The first consumer the group is a called a "leader consumer".       
+
+    => Every consumer in the consumer group maintains a membership in the consumer group by
+       sending "heart-beats" to the Group Coordinator. If the coordinator does not recives the
+       heart-beats for some amount of time designated by "session timeout", then automatically,
+       the coordinator senses that the consumer is dead and triggers a rebalance.
+
+           heartbeat.interval.ms = 3000  (3 sec)
+           session.timeout.ms = 10000 (10 sec)
+  
+   
+   Writing a consumer application using Consumer API
+   --------------------------------------------------
+
+   1. Define the properties object where you define all the configurations
+
+      	 mandatory configs:
+ 
+         bootstrap-server   -> list of brokers to establisg an initial connection to the cluster
+         key-deserializer   -> class to be used to deserialize the key
+         value-deserializer -> class to be used to deserialize the value
+         group-id 	    -> name of the group-id (a string)
+
+    
+    2. Create "KafkaConsumer" object by passing the properties object as parameter.      
+
+    3. Subscribe the consumer to a list of topics (or topic partitions)
+
+    4. Start consuming messages using the "poll" loop.
+
+
+    Auto-Commit  (default: true)
+    ----------------------------
+ 
+    Whenever the consumer instances poll messages, the Kafka broker automatically commits the
+    last offset of the previous offset of the partition. 
+
+       -> Ensure "at least" once delivery semantics. 
+
+
+  Some important configurations in the Consumer API
+  -------------------------------------------------
+
+  Mandatory
+  ---------
+	
+        -> bootstrap.servers
+	-> key.deserializer
+	-> value.deserializer
+	-> group.id
+
+   1. fetch.min.bytes (default: 1)
+	-> minimum data to fetch in each request.
+
+   2. max.poll.records (default: 500)
+	-> controls max. how many messages to receive in each poll request
+	-> increase if messages are small and if you have lot of RAM
+
+   3. max.partitions.fetch.bytes (default: 1MB)
+	-> max data returned by the broker per partition
+	-> if you read from 50 partitions, you need 50MB of RAM. So plan according
+
+   4. fetch.max.bytes (default: 50MB)
+	-> Max data returned per each fetch request (covers multiple partitions)
+
+   5. heartbeat.intervel.ms (default: 3000)
+	-> expected time between heartbeats to consumer group coordinator.
+	-> should be lower than session.timeout.ms
+
+   6. session.timeout.ms (default: 10000) 
+	-> timeout used to detect client failures
+
+   7. auto.offset.reset (default: latest)
+	-> latest, earliest, none
+
+   8. enable.auto.commit (default: true)
+	
+          -> offsets will be automatically at regular intervels  (auto.commit.intervel.ms = 500)
+	     every time you cal consumer.poll method.
+
+	
+  Streams API
+  -----------
+
+   Data Stream => unbounded, infinite and evergrowing sequence of events of small packets (KBs)
+                  
+                  Ex: Sensors, Log-Entries, Click Streams, Transactions, Data Feeds....
+
+
+   
+   Kafka Streams DSL API
+   ---------------------
+
+      -> A Java/Scala API
+      -> Input data must be there in the KafKa topic.
+      -> You can embed Kafka streams in your micro-services architectures
+      -> Deploy them anywhere.
+      -> Out of the box we have parallel processing, scalability & fault-tolerence.
+
+
+   Stream processing concepts:
+   ---------------------------
+
+     1. Time         
+         => Event Time, Log Append Time & Processing Time
+
+     2. State
+         => Local State (state is maintained locally in the program's RAM)
+         => External State (state is maintained on an external datastore such as Cassandra)
+
+     3. Stream-Table duality
+         => The interchangability between streams and tables.
+        
+     4. Time Windows
+           -> Hoppoing Windows
+           -> Tumbling Windows 
+   
+
+   A Streaming application
+   -----------------------
+
+        [ Kafka Topic 1 ]   =====>  [ Streaming App ]   ======> [ Kafka Topic 2 ]
+
+          Orders             ====> Orders Stream   ====>  Discounted Orders
+                                                          High Value Orders
+
+    0. Define the properties object
+    1. Create a Stream Builder
+    2. Define the topology on that builder
+    	2.1. Craete an input KStream reading from a topic
+        2.2. Create a KTable by applying the transformation on the messages of the input stream
+        2.3. Convert the KTable into a KStream
+        2.4. Write the output to an output Topic
+    3. Create the stream onject with the builder and the properties
+    4. Start the stream.
+
+
+  
+  Kafka Use-Case 
+  --------------
+  
+   orderinfo ==> key: Zone,  value: OrderInfo (JSON String)
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
