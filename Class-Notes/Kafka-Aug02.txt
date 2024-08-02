@@ -1,0 +1,316 @@
+
+  Kafka  (6 sessions)
+  -----------------------------------
+    Kafka Basic Understanding
+    Kafka Architecture
+    Kafka APIs - 4 APIs
+    Kafka Producer API
+    Kafka Consumer API
+    Kafka Streams API
+    Kafka Connect API - Introduction
+
+
+  Materials
+  ---------
+	-> PDF Presentations
+	-> Code examples
+	-> Class notes
+	-> Github: https://github.com/ykanakaraju/kafkajava
+
+	
+    Batch Analytics
+    ---------------
+        Batch Data              : Bounded,  1 GB
+        Batch Data Processing   : Bounded,  Starts at 2:00 PM and ends at 2:30 PM
+
+
+    Streaming Analytics
+    -------------------        
+         Streaming Data         : Unbounded, How much data per unit of time (1 MB per sec)
+         Stream Data Processing : Real time analytics
+   
+
+    Challenges in real-time data analytics:
+    ---------------------------------------  
+        -> Collect the data efficiently
+        -> Analysis of the data in real time
+
+     
+    Messaging Systems
+    -----------------
+        -> Decouple the data pipelines and provide solution to handle data collection
+           and processing of streaming data in a more scalable way.
+
+
+    Two types of messaging systems:
+    ------------------------------
+   
+          1. Point to Point Messaging System
+
+                [ Source ] ====> [ Messaging Engine ]
+                 1000 m.p.s      [ x x x x x x x ...]  ==>  [ Consumer App ] ==> [Database]
+                                                            500 m.p.s
+
+          2. Publisher and Subscriber Messaging System
+
+
+    Kafka  (Written in Scala and Java language)
+    --------------------------------------------
+
+       1. Is a distributed pub/sub messaging system.
+
+       2. Is an intermediate storage platform where you can keep the messages for as long as want
+          in a distributed, fault-tolerant manner.
+
+       3. Is a streaming event-processing platform that provides APIs to write stream processing
+          applications (such as micro-services)
+
+
+
+    Kafks is used for:
+	
+	-> high-performance decoupled data pipelines
+	-> streaming analytics
+	-> data integration of distributed streaming sources and sinks
+	-> building micro-services based architectures
+
+
+   Kafka APIs
+   ----------
+
+       1. Producer API	   
+            -> Allows you to write applications (Java/Scala/C#) that listens to the streaming
+               data and stores the messages in the Kafka topics.
+
+       2. Consumer API
+            -> Allows you to write applications that can subscribe to one or more topics in Kafka
+               and process the messages
+
+       3. Streams API
+	    -> Allows you to write the applications that can read from an existing topic in Kafka,
+               transforms the data in some form and write to another topic.
+		
+       4. Connector API
+            -> Connectors move data from standard sources to standared destination using a pre-defined
+               configurations.
+
+            -> There are lot of existing connectors that are already provided by various organizations.
+
+            -> We can also define our own by using Connector API.  
+
+
+   Kafka Building Blocks
+   ---------------------
+
+    1. Broker: 
+	=> A kafka service (kafka-server-start) running in a machine in a node of the cluster.
+	=> Every broker has a unique broker-id in the cluster	       
+
+    2. Topic : 
+	=> Is a feed-name to which similar or same type of messages are published.
+
+    3. Partitions : 
+	=> A sinlge topic is organized as multiple partitions
+        => Each partition is a sequential commit-log, where messages are stored sequentially
+        => To identify a message uniquely we need:
+		-> topic, partition-id, off-set
+
+   4. Producer :
+	=> Is an application that writes/produces messages (events/records) to a topic.
+    
+   5. Consumer :
+         => Is an application that subscribes to one or more topics and polls the messages and 
+            processes them.
+         => Each processed message is committed to a topic called "__consumer_offsets" topic	 
+          
+   6. Zookeeper :
+	=> ZK provides a coordination service which monitors activitoes in the cluster
+        => A cluster is basic is basicaaly formed with a set a brokers connected to the same ZK service.
+   
+   7. Replication
+        => Replication is provided to handle fail-safety
+        => Each partition can have multiple-replicas
+        => Replicas are always created on different brokers (can't have multiple replicas of a partition
+           on the same broker)
+        => Only one of the replicas is elected as the "leader" replica
+        => Messages are produced to and consumed from only from these 'leader' replicas.
+
+   8. Batch
+	=> Messages from a producer are 'typically' produced in batches
+        => Each batch has a set of messages that are to be written to a specific partition
+
+         Topic A  => P: 0, P: 1, P: 2
+
+         Producer ==> Batch 1 [ m1, m2, m3, m4, ... ] for P0   ===> sent to partition 0
+		  ==> Batch 2 [ m1, m2, m3, m4, ... ] for P1   ===> sent to partition 1
+		  ==> Batch 3 [ m1, m2, m3, m4, ... ] for P2   ===> sent to partition 2
+
+
+
+
+   Getting started with Apache Kafka
+   ---------------------------------
+
+    1. Make sure Java 8 is installed 
+   
+    2. Download an appropriate version of Kafka from https://kafka.apache.org/downloads
+       (Preferrably  a version which is a few months old)    
+
+    3. Extract the tgz file at suitable location.
+
+    4. Kafka folder structure:
+            <kafka>/bin         => all the linux/mac shell scripts are found here.
+            <kafka>/bin/windows => all windows batch files are found here..
+            <kafka>/config      => all configuration properties file are located here
+            <kafka>/libs        => all libraries (jars) are found here
+
+   NOTE: <kafka> refers to Kafka installation directory (whereever you unzipped the tgz file)
+    
+   5. Start Zookeeper service:
+
+         Linux:
+             <kafka>/bin/zookeeper-server-start.sh config/zookeeper.properties
+     
+         Windows:
+             <kafka>/bin/windows/zookeeper-server-start.bat config/zookeeper.properties
+
+
+   6. Start the Kafka broker
+
+         Linux:
+              <kafka>/bin/kafka-server-start.sh config/server.properties
+
+	 Windows:
+              <kafka>/bin/windows/kafka-server-start.bat config/server.properties
+
+
+   To check if a service is already running:
+   ----------------------------------------
+   $ netstat -nlp | grep 2181     => to check of ZK is already running
+
+
+   Important PORT numbers
+   ----------------------
+
+     Zookeeper: 2181
+     Kafka Broker: 9092
+
+
+  Important Kafka Configuration Settings
+  --------------------------------------
+
+      Properties file:  server.properties
+
+      broker.id = 0                 // has to unique in the cluster. change it in the properties file as needed.
+      listeners=PLAINTEXT://:9092   // port number where kafaka service is started
+      log.dirs=/tmp/kafka-logs      // where Kafka saves all the data of the topics
+      zookeeper.connect=localhost:2181
+      log.retention.hours=168
+
+      10 machines ==>  <kafka>/bin/kafka-server-start.sh config/server.properties
+
+
+  To check if a service is already running:
+   ----------------------------------------
+   $ netstat -nlp | grep 2181     => to check of ZK is already running
+
+
+   Important PORT numbers
+   ----------------------
+
+     Zookeeper: 2181
+     Kafka Broker: 9092
+
+
+  Important Kafka Configuration Settings
+  --------------------------------------
+
+      Properties file:  server.properties
+
+      broker.id = 0                 // has to unique in the cluster. change it in the properties file as needed.
+      listeners=PLAINTEXT://:9092   // port number where kafaka service is started
+      log.dirs=/tmp/kafka-logs      // where Kafka saves all the data of the topics
+      zookeeper.connect=localhost:2181
+      log.retention.hours=168
+
+      10 machines ==>  <kafka>/bin/kafka-server-start.sh config/server.properties
+
+
+  Working with Topics
+  -------------------
+
+    List Topics:  
+    ------------ 
+   	bin\windows\kafka-topics.bat --list --bootstrap-server localhost:9092
+	bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+
+
+    Create a Topic:
+    --------------
+	bin\windows\kafka-topics.bat --create 
+				--bootstrap-server localhost:9092
+				--topic t1 
+				--partitions 2 
+				--replication-factor 1
+
+	bin/kafka-topics.sh --create 
+			--bootstrap-server localhost:9092 
+			--topic ctstopic1 
+			--partitions 3 
+			--replication-factor 1
+
+    Delete a topic
+    --------------
+        bin\windows\kafka-topics.bat --delete
+				--bootstrap-server localhost:9092
+				--topic t1
+
+    Describe the Topic:
+    ------------------
+	bin\windows\kafka-topics.bat --describe 
+				--bootstrap-server localhost:9092
+				--topic t1
+   
+    Console Producer
+    ----------------
+     => Starting a console producer:
+
+	bin\windows\kafka-console-producer.bat --topic t1 --broker-list localhost:9092 
+
+	bin/kafka-console-producer.sh --topic t1 --broker-list localhost:9092 
+	bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic t1 --property parse.key=true --property key.separator=":"
+
+
+   Console Consumer
+   ----------------
+     => Starting a stand-alone console consumer:
+
+  	bin/kafka-console-consumer.sh --topic t1 --bootstrap-server localhost:9092
+    bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic t1 --property print.key=true --property key.separator=" - "
+
+     => Starting a console consumer in consumer group:
+   
+        bin/kafka-console-consumer.sh --topic t1 
+				--bootstrap-server localhost:9092 
+				--consumer.config config/consumer.properties
+
+        bin/kafka-console-consumer.sh --topic t1 
+				--bootstrap-server localhost:9092 
+				--group my-group   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
