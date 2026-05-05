@@ -74,6 +74,76 @@
 	-> building micro-services based architectures
 
 
+   Getting started with Kafka Projects using Eclipse
+   --------------------------------------------------
+
+	=> Need JDK 1.8 (Java 8 or Up)
+
+
+	Method 1: Manually Adding Reference Libraries
+	----------------------------------------------
+	=> Make sure you have downloaded Kafka.
+
+	1. Open Eclipse IDE
+
+	2. Create a Java Project
+		File -> New -> Java Project
+		Project Name: <Give a Name>
+		Click on 'Finish' button
+
+	3. Add reference libraries
+		Right click (mouse) on the Project name in your project explorer
+		Select Build Path -> Configure Build Path
+		Click 'Libraries' Tab (You should be in 'Java Build Path' section)
+		Click on 'Add External JARs' button
+		Navigate to <Kafka folder> -> libs
+		Select all the jar files (Ctrl+A) and click on 'Apply' button
+		Click on 'Apply and Finish' button
+
+	4. You can now add classes and import Kafka libraries
+	   You can also copy the Java fil provided to you and execute them
+	   Make sure the package names are correctly set. Change them if required.
+
+
+	Method 2: Using Mavel Project
+	----------------------------------------------	
+	1. Open Eclipse IDE
+
+	2. Create a Java Project
+		File -> New -> Java Project
+		Project Name: <Give a Name>
+		Click on 'Finish' button
+
+	3. Convert it into Maven project
+		Right click (mouse) on the Project name in your project explorer
+		Select Configure -> Convert to Maven Project
+		Accept all default and click on Finish
+		Open the pom.xml file (close the file and reopen if required)
+		Click on pom.xml tab (at the bottom section on pom.xml window)
+		
+	4. Add Kafka dependencies
+		Add the following XML block (after build node)
+
+		<!-- Source: https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
+		<dependency>
+    			<groupId>org.apache.kafka</groupId>
+    			<artifactId>kafka-clients</artifactId>
+    			<version>3.6.2</version>
+    			<scope>compile</scope>
+		</dependency>
+
+		==> Make sure your are usng the correct Kafka version as per your lab.
+
+	5. Save the file.
+		If it then download all the dependences into "Maven dependencies" section of your project
+
+	6. You can now add classes and import Kafka libraries
+	   You can also copy the Java fil provided to you and execute them
+	   Make sure the package names are correctly set. Change them if required.
+
+		
+
+
    Kafka APIs
    ----------
 
@@ -135,14 +205,14 @@
         => Messages are produced to and consumed from only from these 'leader' replicas.
 
    8. Batch
-	=> Messages from a producer are 'typically' produced in batches
+	=> Messages from a producer are typically produced in batches
         => Each batch has a set of messages that are to be written to a specific partition
 
          Topic A  => P: 0, P: 1, P: 2
 
-         Producer ==> Batch 1 [ m1, m2, m3, m4, ... ] for P0   ===> sent to partition 0
-		  ==> Batch 2 [ m1, m2, m3, m4, ... ] for P1   ===> sent to partition 1
-		  ==> Batch 3 [ m1, m2, m3, m4, ... ] for P2   ===> sent to partition 2
+         Producer ==> Batch 1 [ m11, m12, m13, m14, ... ] for P0   ===> sent to partition 0
+		  ==> Batch 2 [ m21, m22, m23, m24, ... ] for P1   ===> sent to partition 1
+		  ==> Batch 3 [ m31, m32, m33, m34, ... ] for P2   ===> sent to partition 2
 
 
    Getting started with Apache Kafka
@@ -256,20 +326,20 @@
 			--partitions 3 
 			--replication-factor 1
 
-    Delete a topic
-    --------------
+   Delete a topic
+   --------------
         bin\windows\kafka-topics.bat --delete
 				--bootstrap-server localhost:9092
 				--topic t1
 
-    Describe the Topic:
-    ------------------
+   Describe the Topic:
+   ------------------
 	bin\windows\kafka-topics.bat --describe 
 				--bootstrap-server localhost:9092
 				--topic t1
    
-    Console Producer
-    ----------------
+   Console Producer
+   ----------------
      => Starting a console producer:
 
 	windows:   bin\windows\kafka-console-producer.bat --topic t1 --broker-list localhost:9092 
@@ -283,6 +353,7 @@
      => Starting a stand-alone console consumer:
 
   	bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic t1
+	bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic t1 --partition 1 --offset 10
     	bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic t1 --property print.key=true --property key.separator=" - "
 
      => Starting a console consumer in consumer group:
@@ -316,8 +387,7 @@
    -> If the message has no key, no partitioner and no partition is specified, then the messages will be
       randomly distributed across partitions in a round-robin manner.
 
-
-
+  
   Producer API
   ============
 
@@ -483,7 +553,7 @@
   ============
 
    => A consumer is a client application that connects to kafka cluster, subscribes to one
-      ( or more ) topic(s) or to a few partitions of a topic. 
+      (or more) topic(s) or to a few partitions of a topic. 
     
        -> A consumer may subscribe to a single topic
           (it consumes the data of all partitions of that topics)
@@ -740,13 +810,6 @@ Mandatory
 
 
 
-
-
-
-
-
-
-	
 
 
 
